@@ -8,19 +8,14 @@ while(cap.isOpened()):
     ret, thresh1 = cv2.threshold(
         blur, 70, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-    _, contours, _ = cv2.findContours(
-        thresh1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    image, contours, h = cv2.findContours(
+        thresh1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     drawing = np.zeros(img.shape, np.uint8)
 
-    max_area = 0
-
-    for i in range(len(contours)):
-        cnt = contours[i]
-        area = cv2.contourArea(cnt)
-        if(area > max_area):
-            max_area = area
-            ci = i
-    cnt = contours[ci]
+    areas = [cv2.contourArea(c) for c in contours]
+    max_index = np.argmax(areas)
+    cnt = contours[max_index]
+    # cnt = contours[ci]
     hull = cv2.convexHull(cnt)
     moments = cv2.moments(cnt)
     if moments['m00'] != 0:
