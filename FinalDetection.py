@@ -6,11 +6,12 @@ cascPath = '/Users/jea/Documents/Code/python/opencv/opencv/data/haarcascades/haa
 faceCascade = cv2.CascadeClassifier(cascPath)
 
 cap = cv2.VideoCapture(0)
-fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
+# - - - - - - - - - - - - - - - - - - - - - - - -kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+# - - - - - - - - - - - - - - - - - - - - - - - -fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
 
 while(cap.isOpened()):
     ret, img = cap.read()
-    fgmask = fgbg.apply(img)
+
     cv2.rectangle(img, (300, 300), (50, 50), (0, 255, 0), 0)
     crop_img = img[50:300, 50:300]
     cropped_grey = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
@@ -71,7 +72,9 @@ while(cap.isOpened()):
     cv2.putText(img, "{0} Fingers".format(count_defects), (50, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 255))
 
-    cv2.imshow('fg', fgmask)
+    # - - - - - - - - - - - - - - - - - - - - - - - -fgmask = fgbg.apply(img)
+    # - - - - - - - - - - - - - - - - - - - - - - - -fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+    # - - - - - - - - - - - - - - - - - - - - - - - -cv2.imshow('fg', fgmask)
     # cv2.imshow('end', crop_img)
     # cv2.imshow('drawing', drawing)
     # cv2.imshow('Thresholded', thresh1)
