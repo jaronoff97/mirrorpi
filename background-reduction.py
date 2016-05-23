@@ -54,19 +54,19 @@ def count_fingers(cnt, img):
     return count_defects
 
 
-def find_hand(res, x, y, w, h):
-    crop_img = res[x:h, y:w]
+def find_hand(res, xpos, ypos, width, height):
+    crop_img = res[xpos:height, ypos:width]
     contours = make_thresh(crop_img)
     cnt = find_border(contours)
     drawing = np.zeros(crop_img.shape, np.uint8)
     cv2.drawContours(drawing, [cnt], 0, (0, 255, 0), 0)
     #
     #
-    cv2.rectangle(res, (w, h), (x, y), (0, 255, 0), 0)
+    cv2.rectangle(res, (width, height), (xpos, ypos), (0, 255, 0), 0)
     x, y, w, h = cv2.boundingRect(cnt)
     cv2.rectangle(crop_img, (x, y), (x + w, y + h), (0, 0, 255), 0)
     fingers = count_fingers(cnt, crop_img)
-    cv2.putText(res, "{0} Fingers".format(fingers), (x, y),
+    cv2.putText(res, "{0} Fingers".format(fingers), (xpos, ypos),
                 cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 255))
 
 
@@ -78,7 +78,7 @@ def main():
         frame = cv2.flip(frame, 1)
         res = apply_mask(frame)
         find_hand(res, 50, 50, 300, 600)
-        find_hand(res, 500, 50, 600, 900)
+        find_hand(res, 590, 50, 900, 600)
         # cv2.imshow('lines', crop_img)
         # cv2.imshow('drawing', drawing)
         cv2.imshow('frame', res)
