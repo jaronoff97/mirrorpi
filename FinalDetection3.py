@@ -43,7 +43,9 @@ def draw_thresh(thresh, contours):
     cv2.imshow('Thresholded', thresh)
 
 
-def count_fingers(defects, cnt, img):
+def count_fingers(cnt, img):
+    hull = cv2.convexHull(cnt, returnPoints=False)
+    defects = cv2.convexityDefects(cnt, hull)
     count_defects = 0
     for i in range(defects.shape[0]):
         s, e, f, d = defects[i, 0]
@@ -60,6 +62,7 @@ def count_fingers(defects, cnt, img):
         # dist = cv2.pointPolygonTest(cnt,far,True)
         cv2.line(img, start, end, [0, 255, 0], 2)
         # cv2.circle(crop_img,far,5,[0,0,255],-1)
+    # draw_drawing(cnt, hull, img)
     return count_defects
 
 
@@ -71,20 +74,31 @@ def apply_filter(img, apply_gauss=False):
     return cv2.cvtColor(final_img, cv2.COLOR_BGR2GRAY)
 
 
+def brighter(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)  # convert it to hsv
+    h, s, v = cv2.split(hsv)
+    v += 255
+    final_hsv = cv2.merge((h, s, v))
+
+    return cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+
+
 def removeBG(img):
-    fgmask = fgbg.apply(img)
-    cv2.imshow('fg', fgmask)
+    fgmask = fgbg.apply(brighter(img))
+    res = cv2.bitwise_and(img, img, mask=fgmask)
+    cv2.imshow('fg', res)
 
 
 def main():
     while(cap.isOpened()):
         ret, img = cap.read()
+        img = cv2.flip(img, 1)
+        removeBG(img)
 
         cv2.rectangle(img, (300, 300), (50, 50), (0, 255, 0), 0)
         crop_img = img[50:300, 50:300]
         cropped_grey = apply_filter(crop_img, True)
         uncropped_grey = apply_filter(img)
-
         # Draw a rectangle around the faces
         for (x, y, w, h) in getFaces(uncropped_grey):
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -99,9 +113,7 @@ def main():
         x, y, w, h = cv2.boundingRect(cnt)
         cv2.rectangle(crop_img, (x, y), (x + w, y + h), (0, 0, 255), 0)
 
-        hull = cv2.convexHull(cnt, returnPoints=False)
-        defects = cv2.convexityDefects(cnt, hull)
-        fingers = count_fingers(defects, cnt, crop_img)
+        fingers = count_fingers(cnt, crop_img)
         cv2.putText(img, "{0} Fingers".format(fingers), (50, 50),
                     cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 255))
 
