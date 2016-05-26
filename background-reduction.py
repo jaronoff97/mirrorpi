@@ -16,7 +16,7 @@ def find_border(contours):
 
 def apply_mask(frame):
     fgmask = fgbg.apply(frame)
-    fgmask = cv2.dilate(fgmask, kernel, iterations=6)
+    fgmask = cv2.dilate(fgmask, kernel, iterations=10)
     # fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
     return cv2.bitwise_and(frame, frame, mask=fgmask)
 
@@ -54,18 +54,23 @@ def count_fingers(cnt, img):
     return count_defects
 
 
-def find_hand(res, xpos, ypos, width, height):
+def find_hand(res, xpos, ypos, width, height, handnum):
     crop_img = res[xpos:height, ypos:width]
+    cv2.imshow('hand {0}'.format(handnum), crop_img)
     contours = make_thresh(crop_img)
     cnt = find_border(contours)
     drawing = np.zeros(crop_img.shape, np.uint8)
     cv2.drawContours(drawing, [cnt], 0, (0, 255, 0), 0)
     #
     #
-    cv2.rectangle(res, (width, height), (xpos, ypos), (0, 255, 0), 0)
     x, y, w, h = cv2.boundingRect(cnt)
     cv2.rectangle(crop_img, (x, y), (x + w, y + h), (0, 0, 255), 0)
     fingers = count_fingers(cnt, crop_img)
+    return fingers
+
+
+def draw_bounding(res, xpos, ypos, width, height, fingers):
+    cv2.rectangle(res, (width, height), (xpos, ypos), (0, 255, 0), 0)
     cv2.putText(res, "{0} Fingers".format(fingers), (xpos, ypos),
                 cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 255))
 
@@ -77,8 +82,11 @@ def main():
         ret, frame = cap.read()
         frame = cv2.flip(frame, 1)
         res = apply_mask(frame)
-        find_hand(res, 50, 50, 300, 600)
-        find_hand(res, 590, 50, 900, 600)
+        fingers1 = find_hand(res, 50, 50, 300, 450, 1)
+        fingers2 = find_hand(res, 50, 590, 900, 450, 2)
+        draw_bounding(res, 50, 50, 300, 450, fingers1)
+        draw_bounding(res, 590, 50, 900, 450, fingers2)
+
         # cv2.imshow('lines', crop_img)
         # cv2.imshow('drawing', drawing)
         cv2.imshow('frame', res)
