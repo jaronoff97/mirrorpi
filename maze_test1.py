@@ -6,7 +6,7 @@ from math import sqrt
 
 num_rows = 36  # int(input("Rows: "))  # number of rows
 num_cols = 36  # int(input("Columns: "))  # number of columns
-size = 1000
+size = (984, 1824)
 maze = np.zeros((num_rows, num_cols, 5), dtype=np.uint8)
 range_of_color = (104, 255)
 
@@ -93,8 +93,8 @@ def make_image(image, maze, row, col):
         if cell_data[3] == 1:
             image[10 * row + 9,
                   col_in_image] = color
-    img_to_show = cv2.resize(image, ((size),
-                                     (size)),
+    img_to_show = cv2.resize(image, ((size[0]),
+                                     (size[1])),
                              interpolation=cv2.INTER_NEAREST)
     cv2.imshow("Image", img_to_show)
 
@@ -124,8 +124,8 @@ def make_final_image(maze, img):
                         img[cur_row, 10 * col + 9] = 255
                     if cell_data[3] == 1:
                         img[10 * row + 9, cur_col] = 255
-                image_to_show = cv2.resize(img, ((size),
-                                                 (size)),
+                image_to_show = cv2.resize(img, ((size[0]),
+                                                 (size[1])),
                                            interpolation=cv2.INTER_NEAREST)
                 cv2.imshow("Image", image_to_show)
         col_range = (col_range[0] - 1, col_range[1] + 1)
@@ -134,11 +134,11 @@ def make_final_image(maze, img):
 
 
 def black_out(img):
-    cur_pos = (size / 2, size / 2)
+    cur_pos = (size[0] / 2, size[1] / 2)
     radius = 1
     velocity = 2
     go_out = True
-    while radius < int(sqrt(((size / 2) ** 2) + ((size / 2) ** 2))):
+    while radius < int(sqrt(((size[0] / 2) ** 2) + ((size[1] / 2) ** 2))):
         image_copy = img.copy()
         cv2.circle(image_copy, cur_pos, radius, 0, thickness=-1)
         if radius + velocity < 0:
@@ -163,8 +163,8 @@ def main():
         history = [(r, c)]
         generate_maze(image, maze, history, c, r)
         make_final_image(maze, image)
-        image = cv2.resize(image, ((size),
-                                   (size)),
+        image = cv2.resize(image, ((size[0]),
+                                   (size[1])),
                            interpolation=cv2.INTER_NEAREST)
         cv2.imshow("Image", image)
 
