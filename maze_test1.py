@@ -14,13 +14,14 @@ cv2.setWindowProperty("Image", cv2.WND_PROP_FULLSCREEN,
                       cv2.WINDOW_FULLSCREEN)
 
 
-def make_incrementer(start):
-    def closure(start=start):
+def make_incrementer(start, up=True):
+
+    def closure(start=start, direction=up):
         while True:
             yield start
-            start = start + 1 if start <= 254 else 104
-        if start >= 255:
-            start = 104
+            start = start + 1 if direction else start - 1
+            if start >= 255 or start <= 104:
+                direction = (not direction)
     return closure
 
 color_counter = make_incrementer(104)()
