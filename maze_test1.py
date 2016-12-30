@@ -6,7 +6,7 @@ from math import sqrt
 
 num_rows = 36  # int(input("Rows: "))  # number of rows
 num_cols = 36  # int(input("Columns: "))  # number of columns
-size = (984, 1824)
+size = (1000, 1000)
 maze = np.zeros((num_rows, num_cols, 5), dtype=np.uint8)
 range_of_color = (104, 255)
 cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
